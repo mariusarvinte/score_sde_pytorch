@@ -16,8 +16,7 @@
 
 import torch
 import numpy as np
-from scipy import integrate
-from models import utils as mutils
+from oscar.diffusion.score_sde_pytorch.models import utils as mutils
 
 from torchdiffeq import odeint_adjoint as odeint_adjoint
 from torchdiffeq import odeint as odeint
@@ -56,21 +55,24 @@ class ODEFunc(torch.nn.Module):
 
 
 class ODESolver(torch.nn.Module):
-  def __init__(self, model, sde, inverse_scaler, timesteps=(1e-5, 1), rtol=1e-5, atol=1e-5, 
+  def __init__(self, model, sde, inverse_scaler, timesteps=(1e-5, 1), 
+               rtol=1e-5, atol=1e-5, 
                method='rk4', adjoint_grads=True,
                eps=1e-5, ode_step_size=0.01, epsilon=None, shape=None):
       super().__init__()
+      
       # Store objects
       self.model           = model
       self.method          = method
       self.sde, self.eps   = sde, eps
-      self.timesteps       = torch.tensor(timesteps, device='cuda:0')
+      self.timesteps       = torch.tensor(timesteps)
       self.rtol, self.atol = rtol, atol
       self.inverse_scaler  = inverse_scaler
       self.ode_step_size   = ode_step_size
       self.adjoint_grads   = adjoint_grads
       
-      # Create a inner core module
+      # Instantiate trace wrapper around model
+      # !!! This is the nn.Module that is being called repeatedly during inference
       self.ode_func = ODEFunc(self.model, shape, self.drift_fn, 
                               self.div_fn, epsilon)
       
@@ -104,12 +106,9 @@ class ODESolver(torch.nn.Module):
     zp = solution[-1]
     z  = torch.reshape(zp[:-shape[0]], shape)
     delta_logp = torch.reshape(zp[-shape[0]:], (shape[0],))
-    nfe = -1
-          
     prior_logp    = self.sde.prior_logp(z)
     bpd           = -(prior_logp + delta_logp) / np.log(2)
     N             = np.prod(shape[1:])
-    bpd           = bpd / N
-    nll           = bpd
+    nll           = bpd / N
     
     return nll

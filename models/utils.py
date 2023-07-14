@@ -17,9 +17,9 @@
 """
 
 import torch
-import sde_lib
 import numpy as np
 
+from oscar.diffusion.score_sde_pytorch import sde_lib
 
 _MODELS = {}
 
@@ -89,8 +89,8 @@ def create_model(config):
   """Create the score model."""
   model_name = config.model.name
   score_model = get_model(model_name)(config)
-  score_model = score_model.to(config.device)
-  score_model = torch.nn.DataParallel(score_model)
+  # score_model = score_model.to(config.device)
+  # score_model = torch.nn.DataParallel(score_model)
   return score_model
 
 

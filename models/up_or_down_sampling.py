@@ -7,8 +7,8 @@ import torch.nn as nn
 import torch
 import torch.nn.functional as F
 import numpy as np
-from op import upfirdn2d
 
+from oscar.diffusion.score_sde_pytorch.op import upfirdn2d
 
 # Function ported from StyleGAN2
 def get_weight(module,
