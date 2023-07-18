@@ -8,5 +8,6 @@ setuptools.setup(
     packages=["score_sde_pytorch"],
     install_requires = [
         "ml_collections==0.1.1",
+	"torchdiffeq==0.2.3",
     ],
 )
