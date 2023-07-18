@@ -19,7 +19,7 @@
 import torch
 import numpy as np
 
-from oscar.diffusion.score_sde_pytorch import sde_lib
+from .. import sde_lib
 
 _MODELS = {}
 
