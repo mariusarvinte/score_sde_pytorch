@@ -16,7 +16,7 @@
 # Lint as: python3
 """Training NCSN++ on CIFAR-10."""
 
-from configs.default_cifar10_configs import get_default_configs
+from score_sde_pytorch.configs.default_cifar10_configs import get_default_configs
 
 
 def get_config():
