@@ -50,6 +50,8 @@ class NCSNpp(nn.Module):
     self.num_resolutions = num_resolutions = len(ch_mult)
     self.all_resolutions = all_resolutions = [config.data.image_size // (2 ** i) for i in range(num_resolutions)]
 
+    self.sample_shape = config.model.sample_shape
+
     self.conditional = conditional = config.model.conditional  # noise-conditional
     fir = config.model.fir
     fir_kernel = config.model.fir_kernel
@@ -92,7 +94,8 @@ class NCSNpp(nn.Module):
 
     AttnBlock = functools.partial(layerspp.AttnBlockpp,
                                   init_scale=init_scale,
-                                  skip_rescale=skip_rescale)
+                                  skip_rescale=skip_rescale, 
+                                  normalized_shape=self.sample_shape)
 
     Upsample = functools.partial(layerspp.Upsample,
                                  with_conv=resamp_with_conv, fir=fir, fir_kernel=fir_kernel)
@@ -191,21 +194,18 @@ class NCSNpp(nn.Module):
       if progressive != 'none':
         if i_level == num_resolutions - 1:
           if progressive == 'output_skip':
-            modules.append(nn.GroupNorm(num_groups=min(in_ch // 4, 32),
-                                        num_channels=in_ch, eps=1e-6))
+            modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
             modules.append(conv3x3(in_ch, channels, init_scale=init_scale))
             pyramid_ch = channels
           elif progressive == 'residual':
-            modules.append(nn.GroupNorm(num_groups=min(in_ch // 4, 32),
-                                        num_channels=in_ch, eps=1e-6))
+            modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
             modules.append(conv3x3(in_ch, in_ch, bias=True))
             pyramid_ch = in_ch
           else:
             raise ValueError(f'{progressive} is not a valid name.')
         else:
           if progressive == 'output_skip':
-            modules.append(nn.GroupNorm(num_groups=min(in_ch // 4, 32),
-                                        num_channels=in_ch, eps=1e-6))
+            modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
             modules.append(conv3x3(in_ch, channels, bias=True, init_scale=init_scale))
             pyramid_ch = channels
           elif progressive == 'residual':
@@ -223,8 +223,7 @@ class NCSNpp(nn.Module):
     assert not hs_c
 
     if progressive != 'output_skip':
-      modules.append(nn.GroupNorm(num_groups=min(in_ch // 4, 32),
-                                  num_channels=in_ch, eps=1e-6))
+      modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
       modules.append(conv3x3(in_ch, channels, init_scale=init_scale))
 
     self.all_modules = nn.ModuleList(modules)

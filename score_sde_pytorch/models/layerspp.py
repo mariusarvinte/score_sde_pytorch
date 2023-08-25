@@ -18,6 +18,7 @@
 """
 from . import layers
 from . import up_or_down_sampling
+from .einsum_impl import einsum_bchw_bcij____bhwij, einsum_bhwij_bcij____bchw
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
@@ -62,7 +63,7 @@ class Combine(nn.Module):
 class AttnBlockpp(nn.Module):
   """Channel-wise self-attention block. Modified from DDPM."""
 
-  def __init__(self, channels, skip_rescale=False, init_scale=0.):
+  def __init__(self, channels, normalized_shape, skip_rescale=False, init_scale=0.):
     super().__init__()
     self.GroupNorm_0 = nn.GroupNorm(num_groups=min(channels // 4, 32), num_channels=channels,
                                   eps=1e-6)
@@ -79,11 +80,11 @@ class AttnBlockpp(nn.Module):
     k = self.NIN_1(h)
     v = self.NIN_2(h)
 
-    w = torch.einsum('bchw,bcij->bhwij', q, k) * (int(C) ** (-0.5))
+    w = einsum_bchw_bcij____bhwij(q, k) * (int(C) ** (-0.5))
     w = torch.reshape(w, (B, H, W, H * W))
     w = F.softmax(w, dim=-1)
     w = torch.reshape(w, (B, H, W, H, W))
-    h = torch.einsum('bhwij,bcij->bchw', w, v)
+    h = einsum_bhwij_bcij____bchw(w, v)
     h = self.NIN_3(h)
     if not self.skip_rescale:
       return x + h
