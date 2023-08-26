@@ -24,6 +24,8 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 
+from layer_norms import shape_to_layer_norm
+
 conv1x1 = layers.ddpm_conv1x1
 conv3x3 = layers.ddpm_conv3x3
 NIN = layers.NIN
@@ -63,10 +65,9 @@ class Combine(nn.Module):
 class AttnBlockpp(nn.Module):
   """Channel-wise self-attention block. Modified from DDPM."""
 
-  def __init__(self, channels, normalized_shape, skip_rescale=False, init_scale=0.):
+  def __init__(self, channels, input_sample_shape, skip_rescale=False, init_scale=0.):
     super().__init__()
-    self.GroupNorm_0 = nn.GroupNorm(num_groups=min(channels // 4, 32), num_channels=channels,
-                                  eps=1e-6)
+    self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_sample_shape)
     self.NIN_0 = NIN(channels, channels)
     self.NIN_1 = NIN(channels, channels)
     self.NIN_2 = NIN(channels, channels)
@@ -75,7 +76,7 @@ class AttnBlockpp(nn.Module):
 
   def forward(self, x):
     B, C, H, W = x.shape
-    h = self.GroupNorm_0(x)
+    h = self.LayerNorm_0(x)
     q = self.NIN_0(h)
     k = self.NIN_1(h)
     v = self.NIN_2(h)
@@ -167,17 +168,17 @@ class Downsample(nn.Module):
 class ResnetBlockDDPMpp(nn.Module):
   """ResBlock adapted from DDPM."""
 
-  def __init__(self, act, in_ch, out_ch=None, temb_dim=None, conv_shortcut=False,
+  def __init__(self, act, in_ch, input_phy_shape, out_ch=None, temb_dim=None, conv_shortcut=False,
                dropout=0.1, skip_rescale=False, init_scale=0.):
     super().__init__()
     out_ch = out_ch if out_ch else in_ch
-    self.GroupNorm_0 = nn.GroupNorm(num_groups=min(in_ch // 4, 32), num_channels=in_ch, eps=1e-6)
+    self.LayerNorm_0 = shape_to_layer_norm(normalized_shape=input_phy_shape)
     self.Conv_0 = conv3x3(in_ch, out_ch)
     if temb_dim is not None:
       self.Dense_0 = nn.Linear(temb_dim, out_ch)
       self.Dense_0.weight.data = default_init()(self.Dense_0.weight.data.shape)
       nn.init.zeros_(self.Dense_0.bias)
-    self.GroupNorm_1 = nn.GroupNorm(num_groups=min(out_ch // 4, 32), num_channels=out_ch, eps=1e-6)
+    self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=temb_dim)
     self.Dropout_0 = nn.Dropout(dropout)
     self.Conv_1 = conv3x3(out_ch, out_ch, init_scale=init_scale)
     if in_ch != out_ch:
@@ -192,11 +193,11 @@ class ResnetBlockDDPMpp(nn.Module):
     self.conv_shortcut = conv_shortcut
 
   def forward(self, x, temb=None):
-    h = self.act(self.GroupNorm_0(x))
+    h = self.act(self.LayerNorm_0(x))
     h = self.Conv_0(h)
     if temb is not None:
       h += self.Dense_0(self.act(temb))[:, :, None, None]
-    h = self.act(self.GroupNorm_1(h))
+    h = self.act(self.LayerNorm_1(h))
     h = self.Dropout_0(h)
     h = self.Conv_1(h)
     if x.shape[1] != self.out_ch:
@@ -211,13 +212,13 @@ class ResnetBlockDDPMpp(nn.Module):
 
 
 class ResnetBlockBigGANpp(nn.Module):
-  def __init__(self, act, in_ch, out_ch=None, temb_dim=None, up=False, down=False,
+  def __init__(self, act, in_ch, input_phy_shape, out_ch=None, temb_dim=None, up=False, down=False,
                dropout=0.1, fir=False, fir_kernel=(1, 3, 3, 1),
                skip_rescale=True, init_scale=0.):
     super().__init__()
 
     out_ch = out_ch if out_ch else in_ch
-    self.GroupNorm_0 = nn.GroupNorm(num_groups=min(in_ch // 4, 32), num_channels=in_ch, eps=1e-6)
+    self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_phy_shape)
     self.up = up
     self.down = down
     self.fir = fir
@@ -229,7 +230,7 @@ class ResnetBlockBigGANpp(nn.Module):
       self.Dense_0.weight.data = default_init()(self.Dense_0.weight.shape)
       nn.init.zeros_(self.Dense_0.bias)
 
-    self.GroupNorm_1 = nn.GroupNorm(num_groups=min(out_ch // 4, 32), num_channels=out_ch, eps=1e-6)
+    self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=temb_dim)
     self.Dropout_0 = nn.Dropout(dropout)
     self.Conv_1 = conv3x3(out_ch, out_ch, init_scale=init_scale)
     if in_ch != out_ch or up or down:
@@ -241,7 +242,7 @@ class ResnetBlockBigGANpp(nn.Module):
     self.out_ch = out_ch
 
   def forward(self, x, temb=None):
-    h = self.act(self.GroupNorm_0(x))
+    h = self.act(self.LayerNorm_0(x))
 
     if self.up:
       if self.fir:
@@ -262,7 +263,7 @@ class ResnetBlockBigGANpp(nn.Module):
     # Add bias to each feature map conditioned on the time embedding
     if temb is not None:
       h += self.Dense_0(self.act(temb))[:, :, None, None]
-    h = self.act(self.GroupNorm_1(h))
+    h = self.act(self.LayerNorm_1(h))
     h = self.Dropout_0(h)
     h = self.Conv_1(h)
 
