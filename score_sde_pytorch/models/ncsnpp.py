@@ -50,8 +50,6 @@ class NCSNpp(nn.Module):
     self.num_resolutions = num_resolutions = len(ch_mult)
     self.all_resolutions = all_resolutions = [config.data.image_size // (2 ** i) for i in range(num_resolutions)]
 
-    self.sample_shape = config.model.sample_shape
-
     self.conditional = conditional = config.model.conditional  # noise-conditional
     fir = config.model.fir
     fir_kernel = config.model.fir_kernel
@@ -191,21 +189,22 @@ class NCSNpp(nn.Module):
       if all_resolutions[i_level] in attn_resolutions:
         modules.append(AttnBlock(channels=in_ch))
 
+      # This whole branch will not run for our version of ncsnpp so I will avoid worrying about that the normalized_shape is
       if progressive != 'none':
         if i_level == num_resolutions - 1:
           if progressive == 'output_skip':
-            modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
+            modules.append(nn.LayerNorm(normalized_shape=None))
             modules.append(conv3x3(in_ch, channels, init_scale=init_scale))
             pyramid_ch = channels
           elif progressive == 'residual':
-            modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
+            modules.append(nn.LayerNorm(normalized_shape=None))
             modules.append(conv3x3(in_ch, in_ch, bias=True))
             pyramid_ch = in_ch
           else:
             raise ValueError(f'{progressive} is not a valid name.')
         else:
           if progressive == 'output_skip':
-            modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
+            modules.append(nn.LayerNorm(normalized_shape=None))
             modules.append(conv3x3(in_ch, channels, bias=True, init_scale=init_scale))
             pyramid_ch = channels
           elif progressive == 'residual':
@@ -223,7 +222,7 @@ class NCSNpp(nn.Module):
     assert not hs_c
 
     if progressive != 'output_skip':
-      modules.append(nn.LayerNorm(normalized_shape=self.sample_shape))
+      modules.append(nn.LayerNorm(normalized_shape=None))
       modules.append(conv3x3(in_ch, channels, init_scale=init_scale))
 
     self.all_modules = nn.ModuleList(modules)

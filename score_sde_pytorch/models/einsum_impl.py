@@ -1,6 +1,8 @@
 import torch
 from functools import partial
 
+implement_each_einsum = {'bchw,bcij->bhwij': einsum_bchw_bcij____bhwij, 
+                         'bhwij,bcij->bchw': einsum_bhwij_bcij____bchw}
 
 # random tensors to test with
 def gen_x(B, C, H, W):

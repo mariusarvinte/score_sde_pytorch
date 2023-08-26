@@ -25,6 +25,8 @@ import torch.nn.functional as F
 import numpy as np
 from .normalization import ConditionalInstanceNorm2dPlus
 
+from .einsum_impl import implement_each_einsum
+
 
 def get_act(config):
   """Get activation functions from the config file."""
@@ -529,9 +531,9 @@ def get_timestep_embedding(timesteps, embedding_dim, max_positions=10000):
   return emb
 
 
-def _einsum(a, b, c, x, y):
+def _einsum_eq_string(a, b, c):
   einsum_str = '{},{}->{}'.format(''.join(a), ''.join(b), ''.join(c))
-  return torch.einsum(einsum_str, x, y)
+  return einsum_str
 
 
 def contract_inner(x, y):
@@ -540,7 +542,7 @@ def contract_inner(x, y):
   y_chars = list(string.ascii_lowercase[len(x.shape):len(y.shape) + len(x.shape)])
   y_chars[0] = x_chars[-1]  # first axis of y and last of x get summed
   out_chars = x_chars[:-1] + y_chars[1:]
-  return _einsum(x_chars, y_chars, out_chars, x, y)
+  return implement_each_einsum[_einsum_eq_string(x_chars, y_chars, out_chars)](x, y)
 
 
 class NIN(nn.Module):
