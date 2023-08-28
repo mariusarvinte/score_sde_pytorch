@@ -1,8 +1,7 @@
 import torch
 from functools import partial
 
-implement_each_einsum = {'bchw,bcij->bhwij': einsum_bchw_bcij____bhwij, 
-                         'bhwij,bcij->bchw': einsum_bhwij_bcij____bchw}
+
 
 # random tensors to test with
 def gen_x(B, C, H, W):
@@ -28,6 +27,12 @@ def einsum_bchw_bcij____bhwij(s, t):
 
 def einsum_bhwij_bcij____bchw(s, t):
     return torch.sum(s[:, None] * t[:, :, None, None], dim=(-1, -2))
+
+
+
+# Hard coded dictionary to map equations to hard coded einsum implementations
+implement_each_einsum = {'bchw,bcij->bhwij': einsum_bchw_bcij____bhwij, 
+                         'bhwij,bcij->bchw': einsum_bhwij_bcij____bchw}
 
 
 def compare(library_fun, manual_fun, s, t):
