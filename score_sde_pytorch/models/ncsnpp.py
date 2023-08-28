@@ -160,7 +160,7 @@ class NCSNpp(nn.Module):
         if resblock_type == 'ddpm':
           modules.append(Downsample(in_ch=in_ch))
         else:
-          modules.append(ResnetBlock(down=True, in_ch=in_ch))
+          modules.append(ResnetBlock(down=True, in_ch=in_ch, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
 
         if progressive_input == 'input_skip':
           modules.append(combiner(dim1=input_pyramid_ch, dim2=in_ch))
@@ -174,9 +174,9 @@ class NCSNpp(nn.Module):
         hs_c.append(in_ch)
 
     in_ch = hs_c[-1]
-    modules.append(ResnetBlock(in_ch=in_ch))
-    modules.append(AttnBlock(channels=in_ch))
-    modules.append(ResnetBlock(in_ch=in_ch))
+    modules.append(ResnetBlock(in_ch=in_ch, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
+    modules.append(AttnBlock(channels=in_ch, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
+    modules.append(ResnetBlock(in_ch=in_ch, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
 
     pyramid_ch = 0
     # Upsampling block
