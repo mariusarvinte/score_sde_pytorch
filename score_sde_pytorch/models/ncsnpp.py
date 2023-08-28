@@ -327,7 +327,7 @@ class NCSNpp(nn.Module):
     pyramid = None
 
     # Upsampling block
-    print(f"\n\n\n#####################\nBrandon - DEBUG - About to enter upsampling block   #######################################: {m_idx}\n\n")
+    print(f"\n\n\n#####################\nBrandon - DEBUG - Entering upsampling block   #######################################: {m_idx}\n\n")
     for i_level in reversed(range(self.num_resolutions)):
       for i_block in range(self.num_res_blocks + 1):
         print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
@@ -373,6 +373,7 @@ class NCSNpp(nn.Module):
           else:
             raise ValueError(f'{self.progressive} is not a valid name')
 
+      print(f"\n\n\n#####################\nBrandon - DEBUG - Conditionals at end of upsampling   #######################################: {m_idx}\n\n")
       if i_level != 0:
         if self.resblock_type == 'ddpm':
           print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
