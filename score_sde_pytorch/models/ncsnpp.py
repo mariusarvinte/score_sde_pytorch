@@ -262,6 +262,7 @@ class NCSNpp(nn.Module):
       x = 2 * x - 1.
 
     # Downsampling block
+    print(f"\n#####################\nBrandon - DEBUG - Starting downsampling block\n\n")
     input_pyramid = None
     if self.progressive_input != 'none':
       input_pyramid = x
@@ -271,9 +272,11 @@ class NCSNpp(nn.Module):
     for i_level in range(self.num_resolutions):
       # Residual blocks for this resolution
       for i_block in range(self.num_res_blocks):
+        print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
         h = modules[m_idx](hs[-1], temb)
         m_idx += 1
         if h.shape[-1] in self.attn_resolutions:
+          print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           h = modules[m_idx](h)
           m_idx += 1
 
@@ -281,18 +284,22 @@ class NCSNpp(nn.Module):
 
       if i_level != self.num_resolutions - 1:
         if self.resblock_type == 'ddpm':
+          print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           h = modules[m_idx](hs[-1])
           m_idx += 1
         else:
+          print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           h = modules[m_idx](hs[-1], temb)
           m_idx += 1
 
         if self.progressive_input == 'input_skip':
           input_pyramid = self.pyramid_downsample(input_pyramid)
+          print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           h = modules[m_idx](input_pyramid, h)
           m_idx += 1
 
         elif self.progressive_input == 'residual':
+          print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           input_pyramid = modules[m_idx](input_pyramid)
           m_idx += 1
           if self.skip_rescale:
@@ -304,22 +311,28 @@ class NCSNpp(nn.Module):
         hs.append(h)
 
     h = hs[-1]
+    print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
     h = modules[m_idx](h, temb)
     m_idx += 1
+    print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
     h = modules[m_idx](h)
     m_idx += 1
+    print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
     h = modules[m_idx](h, temb)
     m_idx += 1
 
     pyramid = None
 
     # Upsampling block
+    print(f"\n\n\n#####################\nBrandon - DEBUG - About to enter upsampling block: {m_idx}\n\n")
     for i_level in reversed(range(self.num_resolutions)):
       for i_block in range(self.num_res_blocks + 1):
+        print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
         h = modules[m_idx](torch.cat([h, hs.pop()], dim=1), temb)
         m_idx += 1
 
       if h.shape[-1] in self.attn_resolutions:
+        print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
         h = modules[m_idx](h)
         m_idx += 1
 
@@ -328,6 +341,7 @@ class NCSNpp(nn.Module):
           if self.progressive == 'output_skip':
             pyramid = self.act(modules[m_idx](h))
             m_idx += 1
+            
             pyramid = modules[m_idx](pyramid)
             m_idx += 1
           elif self.progressive == 'residual':
@@ -358,9 +372,11 @@ class NCSNpp(nn.Module):
 
       if i_level != 0:
         if self.resblock_type == 'ddpm':
+          print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           h = modules[m_idx](h)
           m_idx += 1
         else:
+          print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           h = modules[m_idx](h, temb)
           m_idx += 1
 
@@ -369,8 +385,10 @@ class NCSNpp(nn.Module):
     if self.progressive == 'output_skip':
       h = pyramid
     else:
+      print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
       h = self.act(modules[m_idx](h))
       m_idx += 1
+      print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
       h = modules[m_idx](h)
       m_idx += 1
 
