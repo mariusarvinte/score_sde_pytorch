@@ -153,7 +153,7 @@ class NCSNpp(nn.Module):
         in_ch = out_ch
 
         if all_resolutions[i_level] in attn_resolutions:
-          modules.append(AttnBlock(channels=in_ch))
+          modules.append(AttnBlock(channels=in_ch, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
         hs_c.append(in_ch)
 
       if i_level != num_resolutions - 1:
