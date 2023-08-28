@@ -26,7 +26,7 @@ import numpy as np
 from .normalization import ConditionalInstanceNorm2dPlus
 
 from .einsum_impl import implement_each_einsum
-from layer_norms import shape_to_layer_norm
+from .layer_norms import shape_to_layer_norm
 
 
 def get_act(config):

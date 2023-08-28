@@ -24,7 +24,7 @@ import torch
 import torch.nn.functional as F
 import numpy as np
 
-from layer_norms import shape_to_layer_norm
+from .layer_norms import shape_to_layer_norm
 
 conv1x1 = layers.ddpm_conv1x1
 conv3x3 = layers.ddpm_conv3x3
