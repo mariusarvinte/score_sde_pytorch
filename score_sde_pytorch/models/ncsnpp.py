@@ -184,11 +184,12 @@ class NCSNpp(nn.Module):
       for i_block in range(num_res_blocks + 1):
         out_ch = nf * ch_mult[i_level]
         modules.append(ResnetBlock(in_ch=in_ch + hs_c.pop(),
-                                   out_ch=out_ch))
+                                   out_ch=out_ch, 
+                                   input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
         in_ch = out_ch
 
       if all_resolutions[i_level] in attn_resolutions:
-        modules.append(AttnBlock(channels=in_ch))
+        modules.append(AttnBlock(channels=in_ch, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
 
       # This whole branch will not run for our version of ncsnpp so I will avoid worrying about that the normalized_shape is
       if progressive != 'none':
@@ -218,12 +219,13 @@ class NCSNpp(nn.Module):
         if resblock_type == 'ddpm':
           modules.append(Upsample(in_ch=in_ch))
         else:
-          modules.append(ResnetBlock(in_ch=in_ch, up=True))
+          modules.append(ResnetBlock(in_ch=in_ch, up=True, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
 
     assert not hs_c
 
     if progressive != 'output_skip':
-      modules.append(nn.LayerNorm(normalized_shape=None))
+      # below I am assuming we are now at the top of the U
+      modules.append(nn.LayerNorm(normalized_shape=[all_resolutions[0], all_resolutions[0]]))
       modules.append(conv3x3(in_ch, channels, init_scale=init_scale))
 
     self.all_modules = nn.ModuleList(modules)
