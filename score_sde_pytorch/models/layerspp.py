@@ -178,7 +178,7 @@ class ResnetBlockDDPMpp(nn.Module):
       self.Dense_0 = nn.Linear(temb_dim, out_ch)
       self.Dense_0.weight.data = default_init()(self.Dense_0.weight.data.shape)
       nn.init.zeros_(self.Dense_0.bias)
-    self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=temb_dim)
+    self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=input_phy_shape)
     self.Dropout_0 = nn.Dropout(dropout)
     self.Conv_1 = conv3x3(out_ch, out_ch, init_scale=init_scale)
     if in_ch != out_ch:
@@ -230,7 +230,7 @@ class ResnetBlockBigGANpp(nn.Module):
       self.Dense_0.weight.data = default_init()(self.Dense_0.weight.shape)
       nn.init.zeros_(self.Dense_0.bias)
 
-    self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=temb_dim)
+    self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=input_phy_shape)
     self.Dropout_0 = nn.Dropout(dropout)
     self.Conv_1 = conv3x3(out_ch, out_ch, init_scale=init_scale)
     if in_ch != out_ch or up or down:
