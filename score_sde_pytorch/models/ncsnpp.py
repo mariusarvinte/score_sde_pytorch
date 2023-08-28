@@ -149,7 +149,7 @@ class NCSNpp(nn.Module):
       # Residual blocks for this resolution
       for i_block in range(num_res_blocks):
         out_ch = nf * ch_mult[i_level]
-        modules.append(ResnetBlock(in_ch=in_ch, out_ch=out_ch))
+        modules.append(ResnetBlock(in_ch=in_ch, out_ch=out_ch, input_phy_shape=[all_resolutions[i_level], all_resolutions[i_level]]))
         in_ch = out_ch
 
         if all_resolutions[i_level] in attn_resolutions:
