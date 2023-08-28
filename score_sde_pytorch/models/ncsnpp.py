@@ -93,7 +93,7 @@ class NCSNpp(nn.Module):
     AttnBlock = functools.partial(layerspp.AttnBlockpp,
                                   init_scale=init_scale,
                                   skip_rescale=skip_rescale, 
-                                  normalized_shape=[self.config.data.image_size, self.config.data.image_size])
+                                  input_phy_shape=[self.config.data.image_size, self.config.data.image_size])
 
     Upsample = functools.partial(layerspp.Upsample,
                                  with_conv=resamp_with_conv, fir=fir, fir_kernel=fir_kernel)
