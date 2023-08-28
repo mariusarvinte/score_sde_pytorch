@@ -230,7 +230,13 @@ class ResnetBlockBigGANpp(nn.Module):
       self.Dense_0.weight.data = default_init()(self.Dense_0.weight.shape)
       nn.init.zeros_(self.Dense_0.bias)
 
-    self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=input_phy_shape)
+    if self.up:
+      self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=[2*dim for dim in input_phy_shape])
+    elif self.down:
+      self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=[dim//2 for dim in input_phy_shape])
+    else:  
+      self.LayerNorm_1 = shape_to_layer_norm(normalization_shape=input_phy_shape)
+    
     self.Dropout_0 = nn.Dropout(dropout)
     self.Conv_1 = conv3x3(out_ch, out_ch, init_scale=init_scale)
     if in_ch != out_ch or up or down:
