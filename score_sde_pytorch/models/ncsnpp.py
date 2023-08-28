@@ -119,8 +119,7 @@ class NCSNpp(nn.Module):
                                       dropout=dropout,
                                       init_scale=init_scale,
                                       skip_rescale=skip_rescale,
-                                      temb_dim=nf * 4, 
-                                      input_phy_shape=[self.config.data.image_size, self.config.data.image_size])
+                                      temb_dim=nf * 4)
 
     elif resblock_type == 'biggan':
       ResnetBlock = functools.partial(ResnetBlockBigGAN,
@@ -225,7 +224,7 @@ class NCSNpp(nn.Module):
 
     if progressive != 'output_skip':
       # normalized shape below infered from fact it is the second to last module
-      modules.append(nn.LayerNorm(normalized_shape=[64, 64]))  #[all_resolutions[-3], all_resolutions[-3]]))
+      modules.append(nn.LayerNorm(normalized_shape=[all_resolutions[-1], all_resolutions[-1]]))
       modules.append(conv3x3(in_ch, channels, init_scale=init_scale))
 
     self.all_modules = nn.ModuleList(modules)
