@@ -65,9 +65,9 @@ class Combine(nn.Module):
 class AttnBlockpp(nn.Module):
   """Channel-wise self-attention block. Modified from DDPM."""
 
-  def __init__(self, channels, input_sample_shape, skip_rescale=False, init_scale=0.):
+  def __init__(self, channels, input_phy_shape, skip_rescale=False, init_scale=0.):
     super().__init__()
-    self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_sample_shape)
+    self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_phy_shape)
     self.NIN_0 = NIN(channels, channels)
     self.NIN_1 = NIN(channels, channels)
     self.NIN_2 = NIN(channels, channels)
