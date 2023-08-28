@@ -271,8 +271,9 @@ class NCSNpp(nn.Module):
     m_idx += 1
     for i_level in range(self.num_resolutions):
       # Residual blocks for this resolution
+      print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
       for i_block in range(self.num_res_blocks):
-        print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
+        print(f"\n#####################\nBrandon - DEBUG - STARTING RESBLOCKS ###############################\n\n")
         h = modules[m_idx](hs[-1], temb)
         m_idx += 1
         if h.shape[-1] in self.attn_resolutions:
@@ -283,6 +284,7 @@ class NCSNpp(nn.Module):
         hs.append(h)
 
       if i_level != self.num_resolutions - 1:
+        print(f"\n#####################\nBrandon - DEBUG - POST RESBLOCKS ###############################\n\n")
         if self.resblock_type == 'ddpm':
           print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
           h = modules[m_idx](hs[-1])
@@ -310,6 +312,7 @@ class NCSNpp(nn.Module):
 
         hs.append(h)
 
+    print(f"\n#####################\nBrandon - DEBUG - PRE UPSAMPLING ###############################\n\n")
     h = hs[-1]
     print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
     h = modules[m_idx](h, temb)
