@@ -327,7 +327,7 @@ class NCSNpp(nn.Module):
     pyramid = None
 
     # Upsampling block
-    print(f"\n\n\n#####################\nBrandon - DEBUG - About to enter upsampling block: {m_idx}\n\n")
+    print(f"\n\n\n#####################\nBrandon - DEBUG - About to enter upsampling block   #######################################: {m_idx}\n\n")
     for i_level in reversed(range(self.num_resolutions)):
       for i_block in range(self.num_res_blocks + 1):
         print(f"\n#####################\nBrandon - DEBUG - About to run module woth index: {m_idx}\n\n")
