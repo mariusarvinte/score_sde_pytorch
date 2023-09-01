@@ -44,7 +44,7 @@ def get_config():
   model.fourier_scale = 16
   model.scale_by_sigma = False
   model.ema_rate = 0.9999
-  model.normalization = 'GroupNorm'
+  model.normalization = 'InstanceNorm'
   model.nonlinearity = 'swish'
   model.nf = 128
   model.ch_mult = (1, 2, 2, 2)
