@@ -578,11 +578,11 @@ class AttnBlock(nn.Module):
     k = self.NIN_1(h)
     v = self.NIN_2(h)
 
-    w = torch.einsum('bchw,bcij->bhwij', q, k) * (int(C) ** (-0.5))
+    w = implement_each_einsum['bchw,bcij->bhwij'](q, k) * (int(C) ** (-0.5))
     w = torch.reshape(w, (B, H, W, H * W))
     w = F.softmax(w, dim=-1)
     w = torch.reshape(w, (B, H, W, H, W))
-    h = torch.einsum('bhwij,bcij->bchw', w, v)
+    h = implement_each_einsum['bhwij,bcij->bchw'](w, v)
     h = self.NIN_3(h)
     return x + h
 
