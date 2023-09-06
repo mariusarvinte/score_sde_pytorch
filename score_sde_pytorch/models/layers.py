@@ -565,27 +565,26 @@ class AttnBlock(nn.Module):
   """Channel-wise self-attention block."""
   def __init__(self, channels, input_phy_shape):
     super().__init__()
-    # self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_phy_shape)
-    # self.NIN_0 = NIN(channels, channels)
-    # self.NIN_1 = NIN(channels, channels)
-    # self.NIN_2 = NIN(channels, channels)
-    # self.NIN_3 = NIN(channels, channels, init_scale=0.)
+    self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_phy_shape)
+    self.NIN_0 = NIN(channels, channels)
+    self.NIN_1 = NIN(channels, channels)
+    self.NIN_2 = NIN(channels, channels)
+    self.NIN_3 = NIN(channels, channels, init_scale=0.)
 
   def forward(self, x):
     B, C, H, W = x.shape
-    # h = self.LayerNorm_0(x)
-    # q = self.NIN_0(h)
-    # k = self.NIN_1(h)
-    # v = self.NIN_2(h)
+    h = self.LayerNorm_0(x)
+    q = self.NIN_0(h)
+    k = self.NIN_1(h)
+    v = self.NIN_2(h)
 
-    # w = implement_each_einsum['bchw,bcij->bhwij'](q, k) * (int(C) ** (-0.5))
-    # w = torch.reshape(w, (B, H, W, H * W))
-    # w = F.softmax(w, dim=-1)
-    # w = torch.reshape(w, (B, H, W, H, W))
-    # h = implement_each_einsum['bhwij,bcij->bchw'](w, v)
-    # h = self.NIN_3(h)
-    # return x + h
-    return x
+    w = implement_each_einsum['bchw,bcij->bhwij'](q, k) * (int(C) ** (-0.5))
+    w = torch.reshape(w, (B, H, W, H * W))
+    w = F.softmax(w, dim=-1)
+    w = torch.reshape(w, (B, H, W, H, W))
+    h = implement_each_einsum['bhwij,bcij->bchw'](w, v)
+    h = self.NIN_3(h)
+    return x + h
 
 
 class Upsample(nn.Module):
