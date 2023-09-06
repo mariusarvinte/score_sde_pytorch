@@ -585,6 +585,7 @@ class AttnBlock(nn.Module):
     # h = implement_each_einsum['bhwij,bcij->bchw'](w, v)
     # h = self.NIN_3(h)
     return x + h
+    # return x
 
 
 class Upsample(nn.Module):
