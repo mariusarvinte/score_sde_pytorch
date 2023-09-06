@@ -28,7 +28,9 @@ def gen_yy(W, I):
 
 
 def einsum_bchw_bcij____bhwij(s, t):
-    return torch.sum(s[..., None, None] * t[:, :, None, None], dim=1)
+    print(f"\nBrandon DEBUG - shapes in einsum implementation are")
+    print(f"{s[:,:,:,:, None, None].shape} AND {t[:, :, None, None,:,:].shape}")
+    return torch.sum(s[:,:,:,:, None, None] * t[:, :, None, None,:,:], dim=1)
 
 
 def einsum_bhwij_bcij____bchw(s, t):
