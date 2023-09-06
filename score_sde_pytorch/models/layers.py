@@ -580,10 +580,11 @@ class AttnBlock(nn.Module):
 
     w = implement_each_einsum['bchw,bcij->bhwij'](q, k) * (int(C) ** (-0.5))
     w = torch.reshape(w, (B, H, W, H * W))
-    w = F.softmax(w, dim=-1)
+    # w = F.softmax(w, dim=-1)
     w = torch.reshape(w, (B, H, W, H, W))
-   
-    return q
+    h = implement_each_einsum['bhwij,bcij->bchw'](w, v)
+    h = self.NIN_3(h)
+    return x + h
 
 
 class Upsample(nn.Module):
