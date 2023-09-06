@@ -573,7 +573,7 @@ class AttnBlock(nn.Module):
 
   def forward(self, x):
     B, C, H, W = x.shape
-    h = self.LayerNorm_0(x)
+    # h = self.LayerNorm_0(x)
     # q = self.NIN_0(h)
     # k = self.NIN_1(h)
     # v = self.NIN_2(h)
@@ -584,8 +584,8 @@ class AttnBlock(nn.Module):
     # w = torch.reshape(w, (B, H, W, H, W))
     # h = implement_each_einsum['bhwij,bcij->bchw'](w, v)
     # h = self.NIN_3(h)
-    return x + h
-    # return x
+    # return x + h
+    return x
 
 
 class Upsample(nn.Module):
