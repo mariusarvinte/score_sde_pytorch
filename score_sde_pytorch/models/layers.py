@@ -559,7 +559,7 @@ class NIN(nn.Module):
     # x = x.permute(0, 2, 3, 1)
     # y = contract_inner(x, self.W) + self.b
     # return y.permute(0, 3, 1, 2)
-    return x
+    return x.permute(0, 2, 3, 1)
 
 
 class AttnBlock(nn.Module):
