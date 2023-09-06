@@ -565,11 +565,11 @@ class AttnBlock(nn.Module):
   """Channel-wise self-attention block."""
   def __init__(self, channels, input_phy_shape):
     super().__init__()
-    self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_phy_shape)
-    self.NIN_0 = NIN(channels, channels)
-    self.NIN_1 = NIN(channels, channels)
-    self.NIN_2 = NIN(channels, channels)
-    self.NIN_3 = NIN(channels, channels, init_scale=0.)
+    # self.LayerNorm_0 = shape_to_layer_norm(normalization_shape=input_phy_shape)
+    # self.NIN_0 = NIN(channels, channels)
+    # self.NIN_1 = NIN(channels, channels)
+    # self.NIN_2 = NIN(channels, channels)
+    # self.NIN_3 = NIN(channels, channels, init_scale=0.)
 
   def forward(self, x):
     B, C, H, W = x.shape
