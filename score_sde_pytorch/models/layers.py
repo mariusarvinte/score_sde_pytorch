@@ -556,9 +556,10 @@ class NIN(nn.Module):
     self.b = nn.Parameter(torch.zeros(num_units), requires_grad=True)
 
   def forward(self, x):
-    x = x.permute(0, 2, 3, 1)
-    y = contract_inner(x, self.W) + self.b
-    return y.permute(0, 3, 1, 2)
+    # x = x.permute(0, 2, 3, 1)
+    # y = contract_inner(x, self.W) + self.b
+    # return y.permute(0, 3, 1, 2)
+    return x
 
 
 class AttnBlock(nn.Module):
