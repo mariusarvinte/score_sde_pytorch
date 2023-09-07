@@ -82,9 +82,9 @@ class AttnBlockpp(nn.Module):
     v = self.NIN_2(h)
 
     w = einsum_bchw_bcij____bhwij(q, k) * (int(C) ** (-0.5))
-    # w = torch.reshape(w, (B, H, W, H * W))
-    # w = F.softmax(w, dim=-1)
-    # w = torch.reshape(w, (B, H, W, H, W))
+    w = torch.reshape(w, (B, H, W, H * W))
+    w = F.softmax(w, dim=-1)
+    w = torch.reshape(w, (B, H, W, H, W))
     h = einsum_bhwij_bcij____bchw(w, v)
     h = self.NIN_3(h)
     if not self.skip_rescale:
