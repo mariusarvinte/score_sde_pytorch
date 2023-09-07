@@ -28,17 +28,18 @@ def gen_yy(W, I):
 
 
 def einsum_bchw_bcij____bhwij(s, t):
-    print(f"\nBrandon DEBUG - shapes in einsum implementation are")
-    print(f"{s[:,:,:,:, None, None].shape} AND {t[:, :, None, None,:,:].shape}")
-    return torch.sum(s[:,:,:,:, None, None] * t[:, :, None, None,:,:], dim=1)
+    return torch.einsum('bchw,bcij->bhwij', s, t)
+    # return torch.sum(s[:,:,:,:, None, None] * t[:, :, None, None,:,:], dim=1)
 
 
 def einsum_bhwij_bcij____bchw(s, t):
-    return torch.sum(s[:, None] * t[:, :, None, None], dim=(-1, -2))
+    torch.einsum('bhwij,bcij->bchw', s, t)
+    # return torch.sum(s[:, None] * t[:, :, None, None], dim=(-1, -2))
 
 
 def einsum_abcd_df____abcf(s,t):
-    return torch.sum(s[:,:,:,:,None] * t[None,None,None,:,:], dim=-2) 
+    return torch.einsum('abcd,df->abcf', s, t)
+    # return torch.sum(s[:,:,:,:,None] * t[None,None,None,:,:], dim=-2) 
 
 
 
