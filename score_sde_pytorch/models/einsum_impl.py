@@ -33,7 +33,7 @@ def einsum_bchw_bcij____bhwij(s, t):
 
 
 def einsum_bhwij_bcij____bchw(s, t):
-    torch.einsum('bhwij,bcij->bchw', s, t)
+    return torch.einsum('bhwij,bcij->bchw', s, t)
     # return torch.sum(s[:, None] * t[:, :, None, None], dim=(-1, -2))
 
 
