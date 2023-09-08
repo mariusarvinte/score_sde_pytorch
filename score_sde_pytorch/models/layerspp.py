@@ -267,8 +267,8 @@ class ResnetBlockBigGANpp(nn.Module):
 
     h = self.Conv_0(h)
     # Add bias to each feature map conditioned on the time embedding
-    if temb is not None:
-      h += self.Dense_0(self.act(temb))[:, :, None, None]
+    # if temb is not None:
+      # h += self.Dense_0(self.act(temb))[:, :, None, None]
     h = self.act(self.LayerNorm_1(h))
     h = self.Dropout_0(h)
     h = self.Conv_1(h)
