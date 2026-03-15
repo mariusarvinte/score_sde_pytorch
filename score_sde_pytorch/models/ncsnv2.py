@@ -49,7 +49,7 @@ class NCSNv2(nn.Module):
     self.nf = nf = config.model.nf
 
     self.act = act = get_act(config)
-    self.register_buffer('sigmas', torch.tensor(get_sigmas(config)))
+    self.register_buffer('sigmas', torch.tensor(get_sigmas(config), dtype=torch.float32))
     self.config = config
 
     self.begin_conv = nn.Conv2d(config.data.channels, nf, 3, stride=1, padding=1)
@@ -73,17 +73,17 @@ class NCSNv2(nn.Module):
 
     self.res3 = nn.ModuleList([
       ResidualBlock(2 * self.nf, 2 * self.nf, resample='down', act=act,
-                    normalization=self.norm, dilation=2),
+                    normalization=self.norm, dilation=1),
       ResidualBlock(2 * self.nf, 2 * self.nf, resample=None, act=act,
-                    normalization=self.norm, dilation=2)]
+                    normalization=self.norm, dilation=1)]
     )
 
     if config.data.image_size == 28:
       self.res4 = nn.ModuleList([
         ResidualBlock(2 * self.nf, 2 * self.nf, resample='down', act=act,
-                      normalization=self.norm, adjust_padding=True, dilation=4),
+                      normalization=self.norm, adjust_padding=True, dilation=1),
         ResidualBlock(2 * self.nf, 2 * self.nf, resample=None, act=act,
-                      normalization=self.norm, dilation=4)]
+                      normalization=self.norm, dilation=1)]
       )
     else:
       self.res4 = nn.ModuleList([
