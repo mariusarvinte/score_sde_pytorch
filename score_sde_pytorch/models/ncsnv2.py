@@ -88,9 +88,9 @@ class NCSNv2(nn.Module):
     else:
       self.res4 = nn.ModuleList([
         ResidualBlock(2 * self.nf, 2 * self.nf, resample='down', act=act,
-                      normalization=self.norm, adjust_padding=False, dilation=4),
+                      normalization=self.norm, adjust_padding=False, dilation=1),
         ResidualBlock(2 * self.nf, 2 * self.nf, resample=None, act=act,
-                      normalization=self.norm, dilation=4)]
+                      normalization=self.norm, dilation=1)]
       )
 
     self.refine1 = RefineBlock([2 * self.nf], 2 * self.nf, act=act, start=True)
